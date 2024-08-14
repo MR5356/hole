@@ -29,3 +29,19 @@ hole -p 22
 ```shell
 hole read
 ```
+### Run as systemd service
+```shell
+echo '[Unit]
+Description=Hole
+After=network.target syslog.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/hole -p 2222
+
+[Install]
+WantedBy=multi-user.target
+' > /etc/systemd/system/hole.service
+systemctl daemon-reload
+systemctl enable hole --now
+```
