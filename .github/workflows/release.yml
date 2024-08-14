@@ -55,6 +55,7 @@ jobs:
           for file in release/*.tgz; do
             curl -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: application/octet-stream" \
               -F "file=@$file" \
               "${UPLOAD_URL}?name=$(basename $file)"
           done
@@ -67,6 +68,7 @@ jobs:
           for file in release/*.zip; do
             curl -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: application/zip" \
               -F "file=@$file" \
               "${UPLOAD_URL}?name=$(basename $file)"
           done
