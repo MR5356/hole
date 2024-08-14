@@ -36,9 +36,9 @@ jobs:
         id: read_version
         run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
-      - name: Read ChangeLog from File
+      - name: Read CHANGELOG from File
         id: read_changelog
-        run: echo "ChangeLog=$(cat ChangeLog)" >> $GITHUB_ENV
+        run: echo "CHANGELOG=$(cat CHANGELOG)" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -48,4 +48,4 @@ jobs:
           prerelease: false
           tag_name: ${{ env.VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: ${{ env.ChangeLog }}
+          body: ${{ env.CHANGELOG }}
