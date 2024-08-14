@@ -31,11 +31,10 @@ jobs:
           mkdir -p release
           mv bin/*.tgz release/
           mv bin/*.zip release/
-      - name: Get version from VERSION file
-        id: get_version
-        run: |
-          VERSION=$(cat VERSION)
-          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Read Version from File
+        id: read_version
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         id: create_release
@@ -43,31 +42,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: "Release ${{ steps.get_version.outputs.VERSION }}"
+          tag_name: ${{ env.VERSION }}
+          release_name: "Release ${{ env.VERSION }}"
           draft: false
           prerelease: false
+        run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
 
       - name: Upload Linux and macOS Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: ${{ env.UPLOAD_URL }}
         run: |
           for file in release/*.tgz; do
             curl -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/gzip" \
-              --data-binary @$file \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename $file)"
+              -F "file=@$file" \
+              "${UPLOAD_URL}?name=$(basename $file)"
           done
 
       - name: Upload Windows Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: ${{ env.UPLOAD_URL }}
         run: |
           for file in release/*.zip; do
             curl -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/zip" \
-              --data-binary @$file \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename $file)"
+              -F "file=@$file" \
+              "${UPLOAD_URL}?name=$(basename $file)"
           done
