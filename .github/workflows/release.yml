@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.23rc2'
+
+      - name: Install zip
+        run: sudo apt-get install zip
+
+      - name: Build binaries
+        run: make release
+
+      - name: Archive binaries
+        run: |
+          mkdir -p release
+          mv bin/*.tgz release/
+          mv bin/*.zip release/
+      - name: Get version from VERSION file
+        id: get_version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: "Release ${{ steps.get_version.outputs.VERSION }}"
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux and macOS Binaries
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release/*.tgz
+          asset_name: ${{ basename(env.asset_path) }}
+          asset_content_type: application/gzip
+
+      - name: Upload Windows Binaries
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release/*.zip
+          asset_name: ${{ basename(env.asset_path) }}
+          asset_content_type: application/zip
