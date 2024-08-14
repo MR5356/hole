@@ -1,5 +1,5 @@
 NAME = hole
-VERSION=$(shell git describe --tags 2>/dev/null || echo "unknown version")
+VERSION=$(shell cat VERSION 2>/dev/null || echo "unknown version")
 BUILDTIME=$(shell date -u)
 COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown commit")
 GOBUILDFLAGS = go build -trimpath -ldflags '-X "main.Version=$(VERSION)" -X "main.Commit=$(COMMIT)" -X "main.BuildTime=$(BUILDTIME)" -w -s'

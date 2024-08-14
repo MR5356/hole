@@ -47,28 +47,27 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Linux and macOS Binaries
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
-        run: |
-          for file in release/*.tgz; do
-            curl -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/octet-stream" \
-              -F "file=@$file" \
-              "${UPLOAD_URL}?name=$(basename $file)"
-          done
-
-      - name: Upload Windows Binaries
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
-        run: |
-          for file in release/*.zip; do
-            curl -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/zip" \
-              -F "file=@$file" \
-              "${UPLOAD_URL}?name=$(basename $file)"
-          done
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/*
+          asset_name: ${{ matrix.asset_name }}
+          asset_content_type: ${{ matrix.asset_content_type }}
+        strategy:
+          matrix:
+            include:
+              - asset_name: hole-darwin-amd64.tgz
+                asset_content_type: application/gzip
+              - asset_name: hole-darwin-arm64.tgz
+                asset_content_type: application/gzip
+              - asset_name: hole-linux-amd64.tgz
+                asset_content_type: application/gzip
+              - asset_name: hole-linux-arm64.tgz
+                asset_content_type: application/gzip
+              - asset_name: hole-windows-amd64.zip
+                asset_content_type: application/zip
+              - asset_name: hole-windows-arm64.zip
+                asset_content_type: application/zip
