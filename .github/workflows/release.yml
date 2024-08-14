@@ -37,7 +37,7 @@ jobs:
         run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Read ChangeLog from File
-        id: read_version
+        id: read_changelog
         run: echo "ChangeLog=$(cat ChangeLog)" >> $GITHUB_ENV
 
 #      - name: Create GitHub Release
