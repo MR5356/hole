@@ -36,38 +36,27 @@ jobs:
         id: read_version
         run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Read ChangeLog from File
+        id: read_version
+        run: echo "ChangeLog=$(cat ChangeLog)" >> $GITHUB_ENV
+
+#      - name: Create GitHub Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ env.VERSION }}
+#          release_name: "Release ${{ env.VERSION }}"
+#          draft: false
+#          prerelease: false
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: "Release ${{ env.VERSION }}"
+          files: release/*
           draft: false
           prerelease: false
-
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/*
-          asset_name: ${{ matrix.asset_name }}
-          asset_content_type: ${{ matrix.asset_content_type }}
-        strategy:
-          matrix:
-            include:
-              - asset_name: hole-darwin-amd64.tgz
-                asset_content_type: application/gzip
-              - asset_name: hole-darwin-arm64.tgz
-                asset_content_type: application/gzip
-              - asset_name: hole-linux-amd64.tgz
-                asset_content_type: application/gzip
-              - asset_name: hole-linux-arm64.tgz
-                asset_content_type: application/gzip
-              - asset_name: hole-windows-amd64.zip
-                asset_content_type: application/zip
-              - asset_name: hole-windows-arm64.zip
-                asset_content_type: application/zip
+          tag_name: ${{ env.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: "Release ${{ env.ChangeLog }}"
