@@ -46,12 +46,11 @@ jobs:
           release_name: "Release ${{ env.VERSION }}"
           draft: false
           prerelease: false
-        run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
 
       - name: Upload Linux and macOS Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UPLOAD_URL: ${{ env.UPLOAD_URL }}
+          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
         run: |
           for file in release/*.tgz; do
             curl -X POST \
@@ -63,7 +62,7 @@ jobs:
       - name: Upload Windows Binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UPLOAD_URL: ${{ env.UPLOAD_URL }}
+          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
         run: |
           for file in release/*.zip; do
             curl -X POST \
