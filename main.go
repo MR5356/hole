@@ -109,7 +109,7 @@ func read() {
 
 func server() {
 	server := &ssh.Server{
-		Version: "OpenSSH_8.0",
+		Version: "OpenSSH_7.9",
 		PasswordHandler: func(ctx ssh.Context, password string) bool {
 			user := &User{
 				Username:      ctx.User(),
